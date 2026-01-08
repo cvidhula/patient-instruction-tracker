@@ -1,0 +1,59 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <title>Patient Instruction Tracker</title>
+</head>
+<body>
+
+<h2>Create Instruction</h2>
+Doctor: <input id="doctor"><br><br>
+Patient: <input id="patient"><br><br>
+Instruction: <input id="text"><br><br>
+
+<button onclick="createInstruction()">Create</button>
+<button onclick="getInstructions()">Refresh</button>
+
+<h3>Acknowledge Instruction</h3>
+Instruction ID: <input id="ackId">
+<button onclick="acknowledge()">Acknowledge</button>
+
+<ul id="list"></ul>
+
+<script>
+const backend = window.location.origin.replace("8080", "8000");
+
+
+async function createInstruction() {
+  await fetch(backend + "/instructions", {
+    method: "POST",
+    headers: {"Content-Type": "application/json"},
+    body: JSON.stringify({
+      doctor: doctor.value,
+      patient: patient.value,
+      text: text.value
+    })
+  });
+  alert("Instruction Created");
+}
+
+async function getInstructions() {
+  const res = await fetch(backend + "/instructions");
+  const data = await res.json();
+  list.innerHTML = "";
+  data.forEach(i => {
+    const li = document.createElement("li");
+    li.innerText = `ID:${i.id} | Doctor:${i.doctor} | Patient:${i.patient} | Ack:${i.acknowledged}`;
+    list.appendChild(li);
+  });
+}
+
+async function acknowledge() {
+  await fetch(backend + "/instructions/" + ackId.value + "/ack", {
+    method: "POST"
+  });
+  alert("Acknowledged");
+}
+</script>
+
+</body>
+</html>
